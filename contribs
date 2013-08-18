@@ -1,0 +1,172 @@
+#!/bin/bash
+#
+# contribs - contribution manager
+#
+# This script analyzes files using Git repository to prepare contribution
+# statistics.
+#
+# Copyright (c) 2013, Wiktor Lawski <wiktor.lawski@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+
+# Global variables
+
+version=0.99
+
+# Functions
+
+function analyze_file {
+	# It is not possible to show both commiter name and email
+	# using git blame
+	base=`basename $1`
+	dir=`dirname $1`
+	contribs_file0=$dir.$base.contribs0
+	contribs_file1=$dir.$base.contribs1
+	contribs_file=$dir.$base.contribs
+
+	git blame $1 |
+		awk 'match($0, /\([^0-9]+/) {
+			print substr($0, RSTART + 1, RLENGTH - 1);
+		}' > $contribs_file0
+
+	if [ "$OS" == "Windows_NT" ]
+	then
+		git blame -e $1 |
+			awk 'BEGIN {
+				OFS="\t";
+			}
+
+			{
+				print substr($4, 0, 4),
+					substr($3, 2, length($3) - 1);
+			}' > $contribs_file1
+	else
+                git blame -e $1 |
+                        awk 'BEGIN {
+                                OFS="\t";
+                        }
+
+                        {
+                                print substr($4, 0, 5),
+					substr($3, 2, length($3) - 1);
+                        }' > $contribs_file1
+
+	fi
+
+	paste -d "\t" $contribs_file1 $contribs_file0 > $contribs_file
+
+	echo
+	echo $1
+	echo
+
+	cat $contribs_file |
+		tr --delete "\r" | # Fix for Windows line endings
+		awk 'BEGIN {
+			FS="\t";
+		}
+
+		{
+			contrib[$1 "\t" $2 "\t" $3]++;
+		}
+		
+		END {
+			for (key in contrib) {
+				print key;
+			}
+		}' |
+		sort -k1 |
+		awk '{
+			for (i = 3; i <= NF; i++) {
+				printf("%s ", $i);
+			}
+
+			print $2, $1;
+		}'
+
+	rm $contribs_file0 $contribs_file1 $contribs_file
+}
+
+function print_help {
+	cat <<- HELP
+	Usage: $0 [OPTION]... [FILE]...
+	contribs analyzes files using Git repository to prepare	contribution
+	statistics.
+
+	  -h | --help - display this help and exit
+	  --license - display script license and exit
+	  --version - display version details and exit
+	HELP
+
+	exit 0
+}
+
+function print_license {
+	cat LICENSE
+
+	exit 0
+}
+
+function print_version {
+	cat <<- VERSION
+	contribs $version
+
+	Copyright (c) 2013, Wiktor Lawski <wiktor.lawski@gmail.com>
+	All rights reserved.
+	
+	https://github.com/wlawski/contribs
+	VERSION
+
+	exit 0
+}
+
+# Parse parameters
+
+if [ $# -lt 1 ]
+then
+	print_help
+fi
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+
+		"-h" | "--help")
+			print_help
+			;;
+
+		"--license")
+			print_license
+			;;
+
+		"--version")
+			print_version
+			;;
+
+		*)
+			analyze_file $1
+			shift
+			;;
+
+	esac
+done

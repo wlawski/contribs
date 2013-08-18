@@ -1,0 +1,11 @@
+contribs
+--------
+
+contribs is a script that analyzes files using Git repository to prepare
+contribution statistics.
+
+Requirements
+------------
+
+On *nix system this script should just work, if Git is installed. To use it
+on Windows, you should run it in Git Bash.
