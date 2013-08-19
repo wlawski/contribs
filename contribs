@@ -50,29 +50,16 @@ function analyze_file {
 			print substr($0, RSTART + 1, RLENGTH - 1);
 		}' > $contribs_file0
 
-	if [ "$OS" == "Windows_NT" ]
-	then
-		git blame -c -e $1 |
-			awk 'BEGIN {
-				OFS="\t";
-			}
+	git blame -c -e $1 |
+		awk 'BEGIN {
+			OFS="\t";
+		}
 
-			{
-				print substr($3, 0, 4),
-					substr($2, 2, length($2) - 1);
-			}' > $contribs_file1
-	else
-                git blame -c -e $1 |
-                        awk 'BEGIN {
-                                OFS="\t";
-                        }
-
-                        {
-                                print substr($3, 0, 5),
-					substr($2, 2, length($2) - 1);
-                        }' > $contribs_file1
-
-	fi
+		{
+			match($3, /[0-9]+/);
+			print substr($3, RSTART, RLENGTH),
+				substr($2, 2, length($2) - 1);
+		}' > $contribs_file1
 
 	paste -d "\t" $contribs_file1 $contribs_file0 > $contribs_file
 
