@@ -45,31 +45,31 @@ function analyze_file {
 	contribs_file1=$dir.$base.contribs1
 	contribs_file=$dir.$base.contribs
 
-	git blame $1 |
+	git blame -c $1 |
 		awk 'match($0, /\([^0-9]+/) {
 			print substr($0, RSTART + 1, RLENGTH - 1);
 		}' > $contribs_file0
 
 	if [ "$OS" == "Windows_NT" ]
 	then
-		git blame -e $1 |
+		git blame -c -e $1 |
 			awk 'BEGIN {
 				OFS="\t";
 			}
 
 			{
-				print substr($4, 0, 4),
-					substr($3, 2, length($3) - 1);
+				print substr($3, 0, 4),
+					substr($2, 2, length($2) - 1);
 			}' > $contribs_file1
 	else
-                git blame -e $1 |
+                git blame -c -e $1 |
                         awk 'BEGIN {
                                 OFS="\t";
                         }
 
                         {
-                                print substr($4, 0, 5),
-					substr($3, 2, length($3) - 1);
+                                print substr($3, 0, 5),
+					substr($2, 2, length($2) - 1);
                         }' > $contribs_file1
 
 	fi
