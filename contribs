@@ -83,6 +83,84 @@ function analyze_file {
 			}
 		}' |
 		sort -k1 |
+		awk 'BEGIN {
+			contrib[""] = 0; # Dummy associative array
+		}
+
+		function get_years(new_year, prev_years) {
+			if (new_year == prev_years) {
+				return prev_years;
+			}
+
+			if (length(prev_years) == 4) {
+				if (new_year < prev_years) {
+					return new_year "," prev_years;
+				} else {
+					return prev_years "," new_year;
+				}
+			}
+
+			i = 0;
+			next_year = substr(prev_years, 1, 4);
+
+			do {
+				if (next_year == new_year) {
+					return prev_years;
+				} else if (new_year < next_year) {
+					last_years = ((i + 1) < prev_years_size) ? substr(prev_years, (5 * i) + 1, length(prev_years) - (5 * i)) : "";
+
+					return substr(prev_years, 0, 5 * i) new_year "," last_years;
+				}
+
+				i++;
+				next_year = substr(prev_years, (5 * i) + 1, 4);
+			} while (next_year != "");
+
+			return prev_years "," new_year;
+		}
+
+		{
+			year = $1;
+			mail = $2;
+
+			match($0, mail);
+
+			name_idx = RSTART + length(mail) + 1;
+			name_size = 0;
+
+			for (i = 3; i <= NF; i++) {
+				name_size += length($i);
+			}
+
+			name = substr($0, name_idx, name_idx + name_size);
+			new_key = mail "\t" name;
+
+			for (key in contrib) {
+				if (match(key, new_key) == 0) {
+					contrib[year "\t" mail "\t" name]++;
+
+					# It is now possible and necessary to
+					# delete dummy key
+					delete contrib[""];
+				} else {
+					match(key, /[0-9\,]+/);
+					years = substr(key, RSTART, RLENGTH);
+
+					if (match(years, year) == 0) {
+						new_years = get_years(year, years);
+						delete contrib[key];
+						contrib[new_years "\t" mail "\t" name]++;
+					}
+				}
+			}
+		}
+		
+		END {
+			for (key in contrib) {
+				print key;
+			}
+		}' |
+		sort -k1 |
 		awk '{
 			for (i = 3; i <= NF; i++) {
 				printf("%s ", $i);
