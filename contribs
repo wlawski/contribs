@@ -162,11 +162,13 @@ function analyze_file {
 		}' |
 		sort -k1 |
 		awk '{
+			printf("%s ", $1);
+
 			for (i = 3; i <= NF; i++) {
 				printf("%s ", $i);
 			}
 
-			print $2, $1;
+			print $2;
 		}'
 
 	rm $contribs_file0 $contribs_file1 $contribs_file
