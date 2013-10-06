@@ -160,6 +160,35 @@ function analyze_file {
 				print key;
 			}
 		}' |
+		awk '{
+			years = $1;
+
+			years_count = split(years, years_table, ",");
+			years_short = years_table[1];
+
+			for (i = 2; i <= years_count; i++) {
+				length_years = length(years_short);
+				last_year = substr(years_short, length_years - 3, 4);
+
+				if (years_table[i] - last_year > 1) {
+					years_short = years_short "," years_table[i];
+				} else {
+					if (substr(years_short, length_years -  4, 1) == "-") {
+						years_short = substr(years_short, 1, length_years - 4) years_table[i];
+					} else {
+						years_short = years_short "-" years_table[i];
+					}
+				}
+			}
+
+			printf("%s\t", years_short);
+
+			for (i = 2; i <= NF; i++) {
+				printf("%s\t", $i);
+			}
+
+			printf("\n");
+		}' |
 		sort -k1 |
 		awk '{
 			printf("%s ", $1);
