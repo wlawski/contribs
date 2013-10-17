@@ -206,7 +206,7 @@ function analyze_file {
 function print_help {
 	cat <<- HELP
 	Usage: $0 [OPTION]... [FILE]...
-	contribs analyzes files using Git repository to prepare	contribution
+	contribs analyzes files using Git repository to prepare contribution
 	statistics.
 
 	  -h | --help - display this help and exit
