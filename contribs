@@ -5,7 +5,7 @@
 # This script analyzes files using Git repository to prepare contribution
 # statistics.
 #
-# Copyright (c) 2013, Wiktor Lawski <wiktor.lawski@gmail.com>
+# Copyright (c) 2013-2014, Wiktor Lawski <wiktor.lawski@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -63,9 +63,7 @@ function analyze_file {
 
 	paste -d "\t" $contribs_file1 $contribs_file0 > $contribs_file
 
-	echo
-	echo $1
-	echo
+	printf "\n$1\n"
 
 	cat $contribs_file |
 		tr --delete "\r" | # Fix for Windows line endings
