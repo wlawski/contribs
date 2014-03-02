@@ -231,7 +231,8 @@ function print_help {
 }
 
 function print_license {
-	cat LICENSE
+	dir=`dirname $0`
+	cat $dir/LICENSE
 
 	exit 0
 }
