@@ -21,3 +21,9 @@ from: All Packages > MSYS (if graphical interface has been installed for
 MinGW). Then you can just copy paste.exe, msys-intl-8.dll and msys-iconv-2.dll
 files from MSYS binaries directory to the same directory where you have
 installed Git Bash executable.
+
+Tests
+-----
+
+There is a series of tests for this script. All of them are placed in in t/
+directory. You can run them using run-tests script.

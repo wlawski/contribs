@@ -1,0 +1,140 @@
+#!/bin/bash
+#
+# contribs - contribution manager
+#
+# This script runs all tests for contribs script.
+#
+# Copyright (c) 2014, Wiktor Lawski <wiktor.lawski@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+
+# Global variables
+
+FAILED=0
+PASSED=0
+TOTAL=0
+CONTRIBS=`cd .. && pwd`"/contribs"
+TEST_LOG=/dev/null
+ERROR_LOG=.error.log
+TEST_REPOS=.repos
+
+# Functions
+
+function clean {
+	rm -rf $TEST_REPOS
+
+	if [ $TEST_LOG != /dev/null ]
+	then
+		rm -f $TEST_LOG
+	fi
+
+	if [ $ERROR_LOG != /dev/null ]
+	then
+		rm -f $ERROR_LOG
+	fi
+}
+
+function exec_tests {
+	TESTS=`find t* 2> /dev/null`
+
+	if [ $? -eq 0 ]
+	then
+		TOTAL=`echo $TESTS | wc -l`
+	else
+		echo "Tests not found!"
+
+		exit -1
+	fi
+
+	echo
+
+	for test in $TESTS
+	do
+	        $test $CONTRIBS $TEST_REPOS 1>> "$TEST_LOG" 2>> "$ERROR_LOG"
+
+		if [ $? -eq 0 ]
+		then
+			echo -e "$test:\t\tPassed"
+		        PASSED=`expr $PASSED + 1`
+		else
+			echo -e "$test:\t\tFailed"
+			FAILED=`expr $FAILED + 1`
+		fi
+	done
+
+	echo
+}
+
+function print_help {
+	cat <<- HELP
+	Run script without any parameters to run all available tests.
+
+	  --clean - remove any temporary objects and all test logs and exit
+	  --log <log file> - redirect test log to specified file (/dev/null by default)
+	HELP
+
+	exit 0
+}
+
+function print_summary {
+	echo "Executed" $TOTAL "test(s):"
+	echo $PASSED "test(s) passed."
+	echo $FAILED "test(s) failed."
+}
+
+# Parse parameters
+
+if [ $# -lt 1 ]
+then
+	exec_tests
+	print_summary
+
+	exit 0
+fi
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+
+	"--clean")
+		clean
+		exit 0
+		;;
+
+	"--log")
+		shift
+		TEST_LOG=$1
+		shift
+		;;
+
+	*)
+		print_help
+		exit -1
+		;;
+
+	esac
+done
+
+exec_tests
+print_summary
