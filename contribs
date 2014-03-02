@@ -61,7 +61,22 @@ function analyze_file {
 				substr($2, 2, length($2) - 1);
 		}' > $contribs_file1
 
-	paste -d "\t" $contribs_file1 $contribs_file0 > $contribs_file
+
+	if [ `paste --help &> /dev/null ; echo $?` -ne 0 ]
+	then
+		lines=`wc -l $contribs_file1 | awk '{ print $1; }'`
+
+		# TODO: Save file once to increase performance
+		for ((i = 1; i <= $lines; i++))
+		do
+			start=`head -$i $contribs_file1 | tail -1`
+			end=`head -$i $contribs_file0 | tail -1`
+
+			printf "$start\t$end\n" >> $contribs_file
+		done
+	else
+		paste -d "\t" $contribs_file1 $contribs_file0 > $contribs_file
+	fi
 
 	printf "\n$1\n"
 

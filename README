@@ -7,5 +7,17 @@ contribution statistics.
 Requirements
 ------------
 
-On *nix system this script should just work, if Git is installed. To use it
-on Windows, you should run it in Git Bash.
+On *nix system this script should just work, if Git is installed.
+
+To use it on Windows, you should run it in Git Bash. It is enough to run
+contribs 'out-of-the-box' but script will be VERY slow. It is recommended to
+install paste application in your system. You can download it via MinGW. MinGW
+installer is located here:
+
+	http://sourceforge.net/projects/mingw/files/Installer/
+
+After successful installation of this tool, run it and install msys-bash (bin)
+from: All Packages > MSYS (if graphical interface has been installed for
+MinGW). Then you can just copy paste.exe, msys-intl-8.dll and msys-iconv-2.dll
+files from MSYS binaries directory to the same directory where you have
+installed Git Bash executable.
