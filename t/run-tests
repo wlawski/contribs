@@ -71,7 +71,7 @@ function exec_tests {
 
 	for test in $TESTS
 	do
-	        $test $CONTRIBS $TEST_REPOS 1>> "$TEST_LOG" 2>> "$ERROR_LOG"
+	        ./$test $CONTRIBS $TEST_REPOS 1>> "$TEST_LOG" 2>> "$ERROR_LOG"
 
 		if [ $? -eq 0 ]
 		then
