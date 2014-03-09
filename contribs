@@ -204,7 +204,7 @@ function analyze_file {
 		}' |
 		sort -k1 |
 		awk '{
-			printf("%s ", $1);
+			printf("%s, ", $1);
 
 			for (i = 3; i <= NF; i++) {
 				printf("%s ", $i);
@@ -241,7 +241,7 @@ function print_version {
 	cat <<- VERSION
 	contribs $version
 
-	Copyright (c) 2013, Wiktor Lawski <wiktor.lawski@gmail.com>
+	Copyright (c) 2013-2014, Wiktor Lawski <wiktor.lawski@gmail.com>
 	All rights reserved.
 	
 	https://github.com/wlawski/contribs
