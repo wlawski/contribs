@@ -55,6 +55,22 @@ function clean {
 	fi
 }
 
+function clone_repos {
+	mkdir -p $TEST_REPOS
+	test_root=`pwd`
+	cd $TEST_REPOS
+
+	if [ ! -d neard ]
+	then
+		git clone git://git.kernel.org/pub/scm/network/nfc/neard.git
+		cd neard
+		git checkout 0.14
+		cd ..
+	fi
+
+	cd $test_root
+}
+
 function exec_tests {
 	TESTS=`find t* 2> /dev/null`
 
@@ -107,6 +123,7 @@ function print_summary {
 
 if [ $# -lt 1 ]
 then
+	clone_repos
 	exec_tests
 	print_summary
 
@@ -136,5 +153,6 @@ do
 	esac
 done
 
+clone_repos
 exec_tests
 print_summary

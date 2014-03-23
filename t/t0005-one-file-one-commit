@@ -2,7 +2,8 @@
 #
 # contribs - contribution manager
 #
-# This script checks the results for test scripts.
+# This test script checks output of contribs scripts for one input file.
+# Its history contains only one change.
 #
 # Copyright (c) 2014, Wiktor Lawski <wiktor.lawski@gmail.com>
 # All rights reserved.
@@ -29,26 +30,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEST_NAME=$1
-DRAFT_EXPECTED=$2
-RESULT=$3
+CONTRIBS=$1
+TEST_REPOS=$2
 
-EXPECTED=`printf "$DRAFT_EXPECTED" |
-	tr --delete "\r"` # Fix for Windows line endings
+read -d '' EXPECTED <<"EOF"
+\\nsrc/genbuiltin
+2011, Marcel Holtmann <marcel@holtmann.org>
+EOF
 
-printf "TEST $TEST_NAME "
+RESULT=`cd $TEST_REPOS/neard && $CONTRIBS src/genbuiltin`
 
-if [ "$EXPECTED" == "$RESULT" ]
-then
-        printf "PASSED\n"
-
-        exit 0
-else
-        printf "FAILED\n\n"
-        printf "EXPECTED:\n"
-        printf "$EXPECTED\n\n"
-        printf "RESULT:\n"
-        printf "$RESULT\n\n"
-
-	exit -1
-fi
+./check-result $0 "$EXPECTED" "$RESULT"
+exit $?
