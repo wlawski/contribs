@@ -62,9 +62,10 @@ function clone_repos {
 
 	if [ ! -d neard ]
 	then
-		git clone git://git.kernel.org/pub/scm/network/nfc/neard.git
+		echo "Preparing test environment..."
+		git clone git://git.kernel.org/pub/scm/network/nfc/neard.git 1>>"$TEST_LOG" 2>> "$TEST_LOG"
 		cd neard
-		git checkout 0.14
+		git checkout 0.14 1>> "$TEST_LOG" 2>> "$TEST_LOG"
 		cd ..
 	fi
 
